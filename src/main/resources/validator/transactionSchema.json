@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "TransactionEntity",
+  "description": "Объект содержащий основные данные по транзакции",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Уникальный идентификатор операции",
+      "type": "integer"
+    },
+    "operationType": {
+      "description": "Тип операции",
+      "type": "string"
+    },
+    "sum": {
+      "description": "Сумма операции",
+      "type": "number"
+    },
+    "accountNum": {
+      "description": "Номер счета",
+      "type": "number"
+    },
+    "dateOfTransaction": {
+      "description": "Дата и время транзакции",
+      "type": "string"
+    }
+  },
+  "required": ["id", "operationType", "sum", "accountNum", "dateOfTransaction"]
+}
