@@ -2,3 +2,5 @@ target/
 *.iml
 .idea/
 log.txt
+out
+META-INF

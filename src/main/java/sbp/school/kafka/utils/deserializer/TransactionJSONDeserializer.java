@@ -1,4 +1,4 @@
-package sbp.school.kafka.utils.serializer;
+package sbp.school.kafka.utils.deserializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.errors.SerializationException;
@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Класс валидирет полученное сообщение и десириализует его в случае успешной валидации,
+ * иначе выкидывает SerializationException
+ */
 public class TransactionJSONDeserializer implements Deserializer {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionJSONDeserializer.class.getName());
@@ -17,7 +21,7 @@ public class TransactionJSONDeserializer implements Deserializer {
     @Override
     public Object deserialize(String topic, byte[] data) {
         if (data != null) {
-            LOGGER.warning("Data is null");
+            LOGGER.warning("Value is null");
             throw new SerializationException();
         }
 
@@ -30,7 +34,7 @@ public class TransactionJSONDeserializer implements Deserializer {
             return transaction;
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Deserialization fail!!!", ex);
-            throw new SerializationException(ex.getMessage());
+            throw new SerializationException(ex.getMessage(), ex);
         }
     }
 }
