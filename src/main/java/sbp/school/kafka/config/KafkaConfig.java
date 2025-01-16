@@ -1,7 +1,5 @@
 package sbp.school.kafka.config;
 
-import sbp.school.kafka.service.TransactionService;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
