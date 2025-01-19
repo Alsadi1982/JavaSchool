@@ -23,10 +23,10 @@ public class TransactionConsumerService {
         this.props = props;
     }
 
-    public void read() {
+    public void read(String kafkaTopic) {
 
         KafkaConsumer<String, TransactionEntity> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList("kafka-lesson-1"));
+        consumer.subscribe(Collections.singletonList(kafkaTopic));
         ConsumerRecord<String, TransactionEntity> currentRecord = null;
         try {
             while (true) {
@@ -38,7 +38,7 @@ public class TransactionConsumerService {
                     currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1, "some metadata"));
                     if (counter % 100 == 0) {
-                        consumer.commitSync(currentOffsets, null);
+                        consumer.commitAsync(currentOffsets, null);
                     }
                     counter++;
                     currentRecord = record;
