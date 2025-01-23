@@ -1,10 +1,10 @@
 package sbp.school.kafka.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.kafka.common.protocol.types.Field;
 import sbp.school.kafka.utils.OperationType;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -25,7 +25,7 @@ public class TransactionEntity {
         this.operationType = operationType;
         this.sum = sum;
         this.accountNum = accountNum;
-        this.dateOfTransaction = getDateOfTransaction();
+        this.dateOfTransaction = getPresentTime();
     }
 
     public OperationType getOperationType() {
@@ -52,9 +52,16 @@ public class TransactionEntity {
         this.accountNum = accountNum;
     }
 
+    public void setDateOfTransaction(String dateOfTransaction) {
+        this.dateOfTransaction = dateOfTransaction;
+    }
+
     public String getDateOfTransaction() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.now().format(formatter);
+        return dateOfTransaction;
+    }
+
+    public String getPresentTime() {
+        return Timestamp.valueOf(LocalDateTime.now()).toString();
     }
 
     public int getId() {
