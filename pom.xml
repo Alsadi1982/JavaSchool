@@ -5,16 +5,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>sbp</groupId>
-    <artifactId>Lecture2</artifactId>
+    <artifactId>back-flow-producer</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <apache-kafka.version>3.3.2</apache-kafka.version>
         <slf4j.version>1.7.36</slf4j.version>
+        <slf4j-simple.version>1.7.36</slf4j-simple.version>
+        <jackson.databind.version>2.18.1</jackson.databind.version>
+        <json.shema.validator.version>2.2.6</json.shema.validator.version>
+        <jackson.datatype.jsr310>2.17.2</jackson.datatype.jsr310>
+        <producer.version>1.0-SNAPSHOT</producer.version>
+        <h2database.version>2.3.232</h2database.version>
     </properties>
 
-
     <dependencies>
+        <dependency>
+            <groupId>sbp</groupId>
+            <artifactId>Lecture2</artifactId>
+            <version>${producer.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -30,21 +40,42 @@
             <artifactId>connect-json</artifactId>
             <version>${apache-kafka.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j-simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json.shema.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.datatype.jsr310}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2database.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
-
 </project>
