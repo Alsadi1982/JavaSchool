@@ -1,23 +1,30 @@
 package sbp.school.kafka.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sbp.school.kafka.utils.OperationType;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class TransactionEntity {
-    private final int id = (int) (Math.random() * Integer.MAX_VALUE);
+    private int id = (int) (Math.random() * Integer.MAX_VALUE);
+    @JsonProperty("operationType")
     private OperationType operationType;
+    @JsonProperty("sum")
     private BigDecimal sum;
+    @JsonProperty("accountNum")
     private long accountNum;
     private String dateOfTransaction;
+
+    public TransactionEntity() {
+    }
 
     public TransactionEntity(OperationType operationType, BigDecimal sum, long accountNum) {
         this.operationType = operationType;
         this.sum = sum;
         this.accountNum = accountNum;
-        this.dateOfTransaction = getDateOfTransaction();
+        this.dateOfTransaction = getPresentTime();
     }
 
     public OperationType getOperationType() {
@@ -45,12 +52,34 @@ public class TransactionEntity {
     }
 
     public String getDateOfTransaction() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.now().format(formatter);
+        return dateOfTransaction;
+    }
+
+    public String getPresentTime() {
+        return Timestamp.valueOf(LocalDateTime.now()).toString();
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setDateOfTransaction(String dateOfTransaction) {
+        this.dateOfTransaction = dateOfTransaction;
+    }
+
+    @Override
+    public String toString() {
+        return "TransactionEntity{" +
+                "id=" + id +
+                ", operationType=" + operationType +
+                ", sum=" + sum +
+                ", accountNum=" + accountNum +
+                ", dateOfTransaction='" + dateOfTransaction + '\'' +
+                '}';
     }
 }
 

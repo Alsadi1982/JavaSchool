@@ -3,6 +3,7 @@ package sbp.school.kafka.service;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import sbp.school.kafka.entity.TransactionEntity;
+import sbp.school.kafka.utils.dao.ConsumerDao;
 
 import java.time.Duration;
 import java.util.*;
@@ -28,10 +29,12 @@ public class TransactionConsumerService {
         KafkaConsumer<String, TransactionEntity> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singletonList(kafkaTopic));
         ConsumerRecord<String, TransactionEntity> currentRecord = null;
+        ConsumerDao da = new ConsumerDao();
         try {
             while (true) {
                 ConsumerRecords<String, TransactionEntity> consumerRecords = consumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, TransactionEntity> record : consumerRecords) {
+                    da.saveTransactionInDB(record.value());
                     String successMessage = String.format("Успешное получение сообщения! offset = %d, partition = %d, topic = %s, message = %s",
                             record.offset(), record.partition(), record.topic(), record.value());
                     LOGGER.info(successMessage);
@@ -49,7 +52,7 @@ public class TransactionConsumerService {
             if (currentRecord != null) {
                 LOGGER.log(Level.WARNING, "Сбой получения сообщения! " + getErrorMessage(currentRecord, ex), ex);
             } else {
-                    LOGGER.log(Level.WARNING, "Сбой получения сообщения! ConsumerRecord = null!", ex);
+                LOGGER.log(Level.WARNING, "Сбой получения сообщения! ConsumerRecord = null!", ex);
             }
             throw new RuntimeException(ex.getMessage(), ex);
         } finally {
