@@ -7,18 +7,20 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sbp.school.kafka.utils.dao.BackFlowProducerDao;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Утилитный класс содержит методы валидации значений
  */
 public class ValidationUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(ValidationUtil.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(ValidationUtil.class);
 
     /**
      * Метод ValidationUtil#validateWithJSONSchema(String value) валидирует JSON схемой
@@ -34,12 +36,12 @@ public class ValidationUtil {
             JsonSchema schema = factory.getJsonSchema(jsonSchema);
             ProcessingReport report = schema.validate(jsonData);
             if (report.isSuccess()) {
-                LOGGER.info("JSON is valid!");
+                log.info("JSON is valid!");
             } else {
-                LOGGER.warning("JSON is invalid: " + report);
+                log.warn("JSON is invalid: {}",report);
             }
         } catch (ProcessingException | IOException e){
-            LOGGER.log(Level.WARNING, "Problem with validation process!!!", e.getMessage());
+            log.warn("Problem with validation process!!! {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }

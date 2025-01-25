@@ -16,8 +16,15 @@
         <junit.jupiter.version>RELEASE</junit.jupiter.version>
         <apache-kafka.version>3.3.2</apache-kafka.version>
         <slf4j.version>1.7.36</slf4j.version>
+        <h2database.version>2.3.232</h2database.version>
+        <consumer.version>1.0-SNAPSHOT</consumer.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>sbp</groupId>
+            <artifactId>consumer</artifactId>
+            <version>${consumer.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -40,6 +47,11 @@
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.databind.version}</version>
@@ -54,7 +66,11 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.datatype.jsr310}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2database.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

@@ -1,14 +1,15 @@
 package sbp.school.kafka;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sbp.school.kafka.config.KafkaConfig;
 import sbp.school.kafka.config.LoggerConfig;
-import sbp.school.kafka.service.ThreadListener;
-import sbp.school.kafka.service.TransactionConsumerService;
+import sbp.school.kafka.service.BackFlowThreadListener;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main {
@@ -16,16 +17,11 @@ public class Main {
         LoggerConfig.getLoggerConfig();
     }
 
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        if (args.length != 1) {
-            System.out.println("Пожалуйста укажите название топика!");
-            System.out.println("Пример: java -jar consumer.jar topic_name");
-            LOGGER.warning("Не указано название топика!");
-        }else {
-            ExecutorService executorService = Executors.newFixedThreadPool(1);
-            executorService.submit(new ThreadListener(args[0])).get();
-        }
+    public static void main(String[] args){
+        String topicName = KafkaConfig.getKafkaProperties().getProperty("kafka.hashSum.topic.name");
+            ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+            executorService.scheduleWithFixedDelay(new BackFlowThreadListener(topicName), 0, 10, TimeUnit.MINUTES);
     }
 }
