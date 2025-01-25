@@ -18,7 +18,7 @@ public class BackFlowJDBCService {
         List<TransactionEntity> transactionList = new ArrayList<>();
         try (Connection connect = DriverManager.getConnection(DATABASE_URL, "admin", "")) {
             String query = "SELECT * FROM input_transactions WHERE dateOfTransaction"  +
-                    "BETWEEN cast (? as timestamp) AND cast (? as timestamp) - cast (? as interval minute)";
+                    ">= cast (? as timestamp) - cast (? as interval minute)";
             try (PreparedStatement statement = connect.prepareStatement(query)) {
                 statement.setTimestamp(1, fromDate);
                 statement.setInt(2, 10);
