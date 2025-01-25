@@ -2,6 +2,7 @@ package sbp.school.kafka.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sbp.school.kafka.config.KafkaConfig;
 import sbp.school.kafka.entity.TransactionEntity;
 import sbp.school.kafka.utils.OperationType;
 
@@ -18,10 +19,12 @@ public class BackFlowJDBCService {
         List<TransactionEntity> transactionList = new ArrayList<>();
         try (Connection connect = DriverManager.getConnection(DATABASE_URL, "admin", "")) {
             String query = "SELECT * FROM input_transactions WHERE dateOfTransaction"  +
-                    ">= cast (? as timestamp) - cast (? as interval minute)";
+                    " BETWEEN cast (? as timestamp) AND cast (? as timestamp) - cast (? as interval minute)";
             try (PreparedStatement statement = connect.prepareStatement(query)) {
+                int interval = Integer.parseInt(KafkaConfig.getKafkaProperties().getProperty("db.interval"));
                 statement.setTimestamp(1, fromDate);
-                statement.setInt(2, 10);
+                statement.setInt(2, interval);
+                statement.setTimestamp(1, fromDate);
                 if (statement.execute()) {
                     ResultSet resultSet = statement.getResultSet();
                     while (resultSet.next()) {
