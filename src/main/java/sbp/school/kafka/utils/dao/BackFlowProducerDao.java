@@ -37,6 +37,7 @@ public class BackFlowProducerDao {
                         transactionEntity.setDateOfTransaction(resultSet.getTimestamp("dateOfTransaction").toString());
                         transactionList.add(transactionEntity);
                     }
+
                     log.info("Get list of transactions was success: {}", transactionList);
                 }
             } catch (SQLException ex) {
