@@ -30,16 +30,14 @@ public class BackFlowConsumerService {
         consumer.subscribe(Collections.singletonList(topicName));
         ConsumerRecord<String, HashSumDto> currentRecord = null;
         try {
-            while (true) {
-                ConsumerRecords<String, HashSumDto> consumerRecords = consumer.poll(Duration.ofMillis(100));
-                for (ConsumerRecord<String, HashSumDto> record : consumerRecords) {
-                    currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
-                            new OffsetAndMetadata(record.offset() + 1, "some metadata"));
-                    HashSumDto hashSumDto = record.value();
-                    log.info("hashSum = {}, fromData = {}", hashSumDto.getHashSum(), hashSumDto.getFromDate());
-                    currentRecord = record;
-                    return hashSumDto;
-                }
+            ConsumerRecords<String, HashSumDto> consumerRecords = consumer.poll(Duration.ofMillis(100));
+            for (ConsumerRecord<String, HashSumDto> record : consumerRecords) {
+                currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
+                        new OffsetAndMetadata(record.offset() + 1, "some metadata"));
+                HashSumDto hashSumDto = record.value();
+                log.info("hashSum = {}, fromData = {}", hashSumDto.getHashSum(), hashSumDto.getFromDate());
+                currentRecord = record;
+                return hashSumDto;
             }
         } catch (Exception ex) {
             if (currentRecord != null) {

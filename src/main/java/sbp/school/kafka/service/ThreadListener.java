@@ -31,16 +31,18 @@ public class ThreadListener extends Thread{
     }
 
     public void listen() {
-        HashSumDto hashSum = backFlowConsumerService.read((kafkaTopic));
-        long hahSumFromTopic = hashSum.getHashSum();
-        List<TransactionEntity> transactionList = JDBCService.getListByPeriod(hashSum.getFromDate());
-        long hashSumFromDB = transactionList.stream()
-                .map(TransactionEntity::getId)
-                .reduce(0, Integer::sum);
-        log.info("hahSumFromTopic = {}, hashSumFromDB = {}, equals = {}", hahSumFromTopic, hashSumFromDB, Objects.equals(hahSumFromTopic, hashSumFromDB));
-        if (hahSumFromTopic !=  hashSumFromDB) {
-            for (TransactionEntity transaction : transactionList) {
-                transactionService.reSend(transaction, BackFlowKafkaConfig.getKafkaProperties().getProperty("kafka.producer.topic.name"));
+        while (true) {
+            HashSumDto hashSum = backFlowConsumerService.read((kafkaTopic));
+            long hahSumFromTopic = hashSum.getHashSum();
+            List<TransactionEntity> transactionList = JDBCService.getListByPeriod(hashSum.getFromDate());
+            long hashSumFromDB = transactionList.stream()
+                    .map(TransactionEntity::getId)
+                    .reduce(0, Integer::sum);
+            log.info("hahSumFromTopic = {}, hashSumFromDB = {}, equals = {}", hahSumFromTopic, hashSumFromDB, Objects.equals(hahSumFromTopic, hashSumFromDB));
+            if (hahSumFromTopic != hashSumFromDB) {
+                for (TransactionEntity transaction : transactionList) {
+                    transactionService.reSend(transaction, BackFlowKafkaConfig.getKafkaProperties().getProperty("kafka.producer.topic.name"));
+                }
             }
         }
     }
