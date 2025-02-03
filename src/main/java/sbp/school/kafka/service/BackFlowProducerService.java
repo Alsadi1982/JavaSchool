@@ -1,5 +1,6 @@
 package sbp.school.kafka.service;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -20,23 +21,14 @@ public class BackFlowProducerService {
         this.props = props;
     }
 
+
     public void send(ProducerRecord<String, HashSumDto> record){
         KafkaProducer<String, HashSumDto> producer = null;
         try  {
             producer = new KafkaProducer<>(props);
-            Future<RecordMetadata> future = producer.send(record, ((metadata, exception) -> {
-                if (exception != null) {
-                    String errorMessage = String.format("Сбой передачи сообщения! offset = %d, partition = %d, Exception: %s",
-                            metadata.offset(), metadata.partition(), exception.getMessage());
-                    log.warn(errorMessage, exception);
-                } else {
-                    String successMessage = String.format("Успешная отправка сообщения! offset = %d, partition = %d, topic = %s",
-                            metadata.offset(), metadata.partition(), metadata.topic());
-                    log.info(successMessage);
-                }
-            }));
+            Future<RecordMetadata> future = producer.send(record, producerCallbackFunction());
         } catch(Exception ex) {
-            log.warn("Что-тo пошло не так! Сервис упал! {}", ex.getMessage());
+            log.error("Что-тo пошло не так! Сервис упал! {}", ex.getMessage());
         } finally {
             if (producer != null) {
                 producer.flush();
@@ -44,6 +36,21 @@ public class BackFlowProducerService {
             }
         }
 
+    }
+
+    private Callback producerCallbackFunction() {
+        return (metadata, exception) -> {
+            if (exception != null) {
+                String errorMessage = String.format("Сбой передачи сообщения! offset = %d, partition = %d, Exception: %s",
+                        metadata.offset(), metadata.partition(), exception.getMessage());
+                log.error(errorMessage, exception);
+
+            } else {
+                String successMessage = String.format("Успешная отправка сообщения! offset = %d, partition = %d, topic = %s",
+                        metadata.offset(), metadata.partition(), metadata.topic());
+                log.info(successMessage);
+            }
+        };
     }
 }
 

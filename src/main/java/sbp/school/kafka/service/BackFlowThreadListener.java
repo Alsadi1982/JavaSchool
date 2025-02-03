@@ -27,7 +27,8 @@ public class BackFlowThreadListener extends  Thread{
     }
 
     public void listen() {
-        Timestamp fromDate = Timestamp.valueOf(LocalDateTime.now().minusMinutes(10));
+        long delayInterval = Long.parseLong(KafkaConfig.getKafkaProperties().getProperty("delay.interval"));
+        Timestamp fromDate = Timestamp.valueOf(LocalDateTime.now().minusMinutes(delayInterval));
         List<TransactionEntity> transactionList = dao.getListByPeriod(fromDate);
         long hashSumFromDB = transactionList.stream()
                 .map(TransactionEntity::getId)

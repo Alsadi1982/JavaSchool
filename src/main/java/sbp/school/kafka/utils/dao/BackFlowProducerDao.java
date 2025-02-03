@@ -22,7 +22,7 @@ public class BackFlowProducerDao {
             String query = "SELECT * FROM input_transactions WHERE dateOfTransaction" +
                     " BETWEEN cast (? as timestamp) AND cast (? as timestamp) - cast (? as interval minute)";
             try (PreparedStatement statement = connect.prepareStatement(query)) {
-                int interval = Integer.parseInt(KafkaConfig.getKafkaProperties().getProperty("db.interval"));
+                int interval = Integer.parseInt(KafkaConfig.getKafkaProperties().getProperty("delay.interval"));
                 statement.setTimestamp(1, fromDate);
                 statement.setInt(2,interval);
                 statement.setTimestamp(3, fromDate);

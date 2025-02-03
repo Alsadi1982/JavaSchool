@@ -21,7 +21,8 @@ public class Main {
 
     public static void main(String[] args){
         String topicName = KafkaConfig.getKafkaProperties().getProperty("kafka.hashSum.topic.name");
-            ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-            executorService.scheduleWithFixedDelay(new BackFlowThreadListener(topicName), 0, 10, TimeUnit.MINUTES);
+        long delayInterval = Long.parseLong(KafkaConfig.getKafkaProperties().getProperty("delay.interval"));
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleWithFixedDelay(new BackFlowThreadListener(topicName), 0, delayInterval, TimeUnit.MINUTES);
     }
 }
