@@ -1,0 +1,2 @@
+{"id":1634996688,"operationType":"DEPOSITING","sum":12345,"accountNum":789456342}
+{"id":1302138061,"operationType":"WRITING_OF","sum":555,"accountNum":789456342}
