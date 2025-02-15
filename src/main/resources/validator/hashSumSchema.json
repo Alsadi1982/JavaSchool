@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "HashSumDto",
+  "description": "Объект содержащий основные данные для проверки обработанных транзакций с помощью обратного потока",
+  "type": "object",
+  "properties": {
+    "hashSum": {
+      "description": "Контрольная хэшсумма",
+      "type": "number"
+    },
+    "fromDate": {
+      "description": "Дата и время с которой делаем выборку",
+      "type": "string"
+    }
+  },
+  "required": ["hashSum", "fromDate"]
+}
