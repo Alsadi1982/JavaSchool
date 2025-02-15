@@ -9,6 +9,7 @@ import org.apache.kafka.connect.source.SourceTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sbp.school.kafka.config.AppConfig;
 import sbp.school.kafka.entity.TransactionEntity;
 import sbp.school.kafka.utils.OperationType;
 
@@ -41,7 +42,7 @@ public class CustomDBStreamSourceTask extends SourceTask {
     private Long streamOffset;
 
     public CustomDBStreamSourceTask() {
-        this(1024);
+        this(Integer.parseInt(AppConfig.getAppProperties().getProperty("initial.buffer.size")));
     }
     CustomDBStreamSourceTask(int initialBufferSize) {
         buffer = new char[initialBufferSize];
