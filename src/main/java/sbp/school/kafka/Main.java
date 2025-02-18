@@ -1,6 +1,7 @@
 package sbp.school.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import sbp.school.kafka.config.KafkaConfig;
 import sbp.school.kafka.config.LoggerConfig;
@@ -30,7 +31,7 @@ public class Main {
                     ObjectMapper mapper = new ObjectMapper();
                     TransactionEntity transaction = mapper.readValue(line, TransactionEntity.class);
                     ProducerRecord<String, TransactionEntity> record = new ProducerRecord<>(args[1], transaction.getOperationType().name(), transaction);
-                    TransactionService transactionService = new TransactionService(KafkaConfig.getKafkaProperties());
+                    TransactionService transactionService = new TransactionService(KafkaConfig.getKafkaProperties(), new KafkaProducer<>(KafkaConfig.getKafkaProperties()));
                     transactionService.send(record);
                 }
 
