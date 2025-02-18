@@ -1,12 +1,12 @@
 package sbp.school.kafka.service;
 
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.clients.producer.*;
 import sbp.school.kafka.entity.TransactionEntity;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,31 +17,34 @@ public class TransactionService {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionService.class.getName());
     private final Properties props;
+    private Producer<String, TransactionEntity> producer = null;
+    private Exception exception;
 
-    public TransactionService(Properties props) {
+
+    public TransactionService(Properties props, Producer<String, TransactionEntity> producer) {
         this.props = props;
+        this.producer = producer;
     }
 
     /**
      * Метод TransactionService#send(ProducerRecord<String, TransactionEntity> record) отправка сообщения
      * @param record
      */
-    public void send(ProducerRecord<String, TransactionEntity> record){
-        KafkaProducer<String, TransactionEntity> producer = null;
+    public Future<RecordMetadata> send(ProducerRecord<String, TransactionEntity> record){
         try  {
-            producer = new KafkaProducer<>(props);
             Future<RecordMetadata> future = producer.send(record, producerCallbackFunction());
+            return future;
         } catch(Exception ex) {
             LOGGER.log(Level.SEVERE, "Что-тo пошло не так! Сервис упал!", ex.getMessage());
+            exception = ex;
+            throw new RuntimeException(ex.getMessage(), ex);
         } finally {
-            if (producer != null) {
+            if (producer != null && exception != null) {
                 producer.flush();
                 producer.close();
             }
         }
-
     }
-
 
     /**
      * Метод TransactionService#reSend(TransactionEntity transaction, String kafkaTopic) переотправка сообщений
@@ -51,9 +54,7 @@ public class TransactionService {
      */
     public void reSend(TransactionEntity transaction, String kafkaTopic){
         ProducerRecord<String, TransactionEntity> record = new ProducerRecord<>(kafkaTopic, transaction.getOperationType().name(), transaction);
-        KafkaProducer<String, TransactionEntity> producer = null;
         try  {
-            producer = new KafkaProducer<>(props);
             Future<RecordMetadata> future = producer.send(record, ((metadata, exception) -> {
                 if (exception != null) {
                     String errorMessage = String.format("Сбой передачи сообщения! offset = %d, partition = %d, Exception: %s",
