@@ -1,6 +1,8 @@
 package sbp.school.kafka.service;
 
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import sbp.school.kafka.config.KafkaConfig;
+import sbp.school.kafka.entity.TransactionEntity;
 
 import java.util.Properties;
 
@@ -15,7 +17,7 @@ public class ThreadListener extends Thread{
     }
 
     public void listen() {
-        service.read(kafkaTopic);
+        service.read(kafkaTopic, new KafkaConsumer<String, TransactionEntity>(KafkaConfig.getKafkaProperties()));
     }
 
     @Override

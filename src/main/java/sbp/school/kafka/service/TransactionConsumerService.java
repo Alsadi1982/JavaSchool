@@ -2,6 +2,7 @@ package sbp.school.kafka.service;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.WakeupException;
 import sbp.school.kafka.entity.TransactionEntity;
 
 import java.time.Duration;
@@ -18,14 +19,15 @@ public class TransactionConsumerService {
     private final Properties props;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     int counter = 0;
+    private Consumer<String, TransactionEntity> consumer;
 
     public TransactionConsumerService(Properties props) {
         this.props = props;
     }
 
-    public void read(String kafkaTopic) {
+    public void read(String kafkaTopic, Consumer cons) {
 
-        KafkaConsumer<String, TransactionEntity> consumer = new KafkaConsumer<>(props);
+        consumer = cons;
         consumer.subscribe(Collections.singletonList(kafkaTopic));
         ConsumerRecord<String, TransactionEntity> currentRecord = null;
         try {
@@ -45,11 +47,13 @@ public class TransactionConsumerService {
                 }
 
             }
+        }catch (WakeupException e) {
+            LOGGER.info("Shuttinng down!");
         } catch (Exception ex) {
             if (currentRecord != null) {
-                LOGGER.log(Level.WARNING, "Сбой получения сообщения! " + getErrorMessage(currentRecord, ex), ex);
+                LOGGER.log(Level.SEVERE, "Сбой получения сообщения! " + getErrorMessage(currentRecord, ex), ex);
             } else {
-                    LOGGER.log(Level.WARNING, "Сбой получения сообщения! ConsumerRecord = null!", ex);
+                    LOGGER.log(Level.SEVERE, "Сбой получения сообщения! ConsumerRecord = null!", ex);
             }
             throw new RuntimeException(ex.getMessage(), ex);
         } finally {
@@ -57,16 +61,21 @@ public class TransactionConsumerService {
                 consumer.commitSync(currentOffsets, null);
             } catch (Exception e) {
                 if (currentRecord != null) {
-                    LOGGER.log(Level.WARNING, "Commit error! " + getErrorMessage(currentRecord, e), e);
+                    LOGGER.log(Level.SEVERE, "Commit error! " + getErrorMessage(currentRecord, e), e);
                 } else {
-                    LOGGER.log(Level.WARNING, "Commit error! ConsumerRecord = null!", e);
+                    LOGGER.log(Level.SEVERE, "Commit error! ConsumerRecord = null!", e);
                 }
             }
+            consumer.close();
         }
     }
 
     private String getErrorMessage(ConsumerRecord<String, TransactionEntity> record, Exception ex) {
         return String.format("offset = %d, partition = %d, topic = %s, Exception: %s",
                 record.offset(), record.partition(), record.topic(), ex.getMessage());
+    }
+
+    public void stop(){
+        consumer.wakeup();
     }
 }

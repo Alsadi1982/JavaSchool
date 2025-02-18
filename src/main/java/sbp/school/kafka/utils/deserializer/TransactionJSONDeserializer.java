@@ -33,7 +33,7 @@ public class TransactionJSONDeserializer implements Deserializer {
             LOGGER.info("Success deserialization");
             return transaction;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Deserialization fail!!!", ex);
+            LOGGER.log(Level.SEVERE, "Deserialization fail!!!", ex);
             throw new SerializationException(ex.getMessage(), ex);
         }
     }
