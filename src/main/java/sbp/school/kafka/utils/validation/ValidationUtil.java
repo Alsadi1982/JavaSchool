@@ -25,7 +25,7 @@ public class ValidationUtil {
      * @param value - JSON-string
      * @param pathToJSONSchema - путь до JSON-schema
      */
-    public static void validateWithJSONSchema(String value, String pathToJSONSchema) {
+    public static boolean validateWithJSONSchema(String value, String pathToJSONSchema) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode jsonData = mapper.readTree(value);
@@ -37,9 +37,11 @@ public class ValidationUtil {
                 LOGGER.info("JSON is valid!");
             } else {
                 LOGGER.warning("JSON is invalid: " + report);
+                throw new RuntimeException("JSON is invalid");
             }
+            return report.isSuccess();
         } catch (ProcessingException | IOException e){
-            LOGGER.log(Level.WARNING, "Problem with validation process!!!", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Problem with validation process!!!", e.getMessage());
             throw new RuntimeException(e);
         }
     }
