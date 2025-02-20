@@ -1,10 +1,8 @@
 package sbp.school.kafka.service;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sbp.school.kafka.entity.HashSumDto;
@@ -20,13 +18,14 @@ public class BackFlowConsumerService {
     private static final Logger log = LoggerFactory.getLogger(BackFlowConsumerService.class);
     private final Properties props;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+    private Consumer<String, HashSumDto> consumer;
 
     public BackFlowConsumerService(Properties props) {
         this.props = props;
     }
 
-    public HashSumDto read(String topicName) {
-        KafkaConsumer<String, HashSumDto> consumer = new KafkaConsumer<>(props);
+    public HashSumDto read(String topicName, Consumer cons) {
+        consumer = cons;
         consumer.subscribe(Collections.singletonList(topicName));
         ConsumerRecord<String, HashSumDto> currentRecord = null;
         try {
@@ -39,6 +38,8 @@ public class BackFlowConsumerService {
                 currentRecord = record;
                 return hashSumDto;
             }
+        }catch (WakeupException e) {
+            log.info("Shuttinng down!");
         } catch (Exception ex) {
             if (currentRecord != null) {
                 log.error("Сбой получения сообщения! " + getErrorMessage(currentRecord, ex), ex);
@@ -47,10 +48,15 @@ public class BackFlowConsumerService {
             }
             throw new RuntimeException(ex.getMessage(), ex);
         }
+        return new HashSumDto();
     }
 
     private String getErrorMessage(ConsumerRecord<String, HashSumDto> record, Exception ex) {
         return String.format("offset = %d, partition = %d, topic = %s, Exception: %s",
                 record.offset(), record.partition(), record.topic(), ex.getMessage());
+    }
+
+    public void stop(){
+        consumer.wakeup();
     }
 }
