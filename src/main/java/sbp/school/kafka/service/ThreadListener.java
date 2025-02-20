@@ -1,5 +1,6 @@
 package sbp.school.kafka.service;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sbp.school.kafka.config.BackFlowKafkaConfig;
@@ -8,12 +9,8 @@ import sbp.school.kafka.dao.BackFlowJDBCService;
 import sbp.school.kafka.entity.HashSumDto;
 import sbp.school.kafka.entity.TransactionEntity;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ThreadListener extends Thread{
 
@@ -22,17 +19,19 @@ public class ThreadListener extends Thread{
     private final BackFlowJDBCService JDBCService;
     private final BackFlowConsumerService backFlowConsumerService;
     private final String kafkaTopic;
+    private Consumer<String, HashSumDto> consumer;
 
-    public ThreadListener(String kafkaTopic) {
+    public ThreadListener(String kafkaTopic, Consumer<String, HashSumDto> consumer) {
         this.backFlowConsumerService = new BackFlowConsumerService(BackFlowKafkaConfig.getKafkaProperties());
         this.JDBCService = new BackFlowJDBCService();
         this.kafkaTopic = kafkaTopic;
         this.transactionService = new TransactionService(KafkaConfig.getKafkaProperties());
+        this.consumer = consumer;
     }
 
     public void listen() {
         while (true) {
-            HashSumDto hashSum = backFlowConsumerService.read((kafkaTopic));
+            HashSumDto hashSum = backFlowConsumerService.read(kafkaTopic, consumer);
             long hahSumFromTopic = hashSum.getHashSum();
             List<TransactionEntity> transactionList = JDBCService.getListByPeriod(hashSum.getFromDate());
             long hashSumFromDB = transactionList.stream()

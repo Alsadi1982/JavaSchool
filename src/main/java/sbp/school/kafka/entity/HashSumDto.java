@@ -4,8 +4,11 @@ import java.sql.Timestamp;
 
 public class HashSumDto {
 
-    private final long hashSum;
-    private final Timestamp fromDate;
+    private long hashSum ;
+    private Timestamp fromDate;
+
+    public HashSumDto() {
+    }
 
     public HashSumDto(long hashSum, Timestamp fromDate) {
         this.hashSum = hashSum;
